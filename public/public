@@ -1,0 +1,6 @@
+mobile-app/
+├── assets/
+│   ├── images/
+│   │   └── logo.png
+│   ├── icons/
+│   └── fonts/
