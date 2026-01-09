@@ -1,0 +1,10 @@
+import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
+
+// Initialize Firebase (aka Fundy backend magic)
+admin.initializeApp();
+
+// Sample function: Hello world 👋
+export const helloWorld = functions.https.onRequest((req, res) => {
+  res.send("Hello from Fundy backend! Let’s get some jobs done 🚀");
+});
