@@ -1,0 +1,21 @@
+# Fundy – Fundi wako, papo hapo 😎
+
+Welcome to Fundy! The app that connects you to local fundis faster than your phone battery drains.
+
+## Features
+- 🔑 OTP login (we don’t do passwords, too mainstream)
+- 📲 Book a fundi in 3 taps
+- 💬 Chat with your fundi (no awkward small talk required)
+- 💰 Payments & wallet (cha-ching!)
+- ⭐ Ratings & badges (who’s hot, who’s not)
+- 📍 Real-time tracking (watch your fundi move like a ninja)
+- 👑 Admin dashboard (control everything like a boss)
+
+## Tech Stack
+- Mobile: Flutter (Dart)
+- Backend: Firebase (Cloud Functions + Firestore)
+- Admin: Next.js + Tailwind CSS
+- Payments: Selcom / Flutterwave
+
+## How to setup
+Check `docs/SETUP.md` for step-by-step guide. Trust me, it's easier than finding a good fundi in Dar es Salaam.
