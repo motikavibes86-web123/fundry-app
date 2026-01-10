@@ -1,0 +1,15 @@
+// mobile-app/lib/core/style.dart
+import 'package:flutter/material.dart';
+
+class FundyStyles {
+  static const rangiYaDhahabu = Color(0xFFD4AF37);
+  static const rangiYaGiza = Color(0xFF0A192F);
+
+  static BoxDecoration kadiYaFundi = BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(15),
+    boxShadow: [
+      BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5))
+    ],
+  );
+}
