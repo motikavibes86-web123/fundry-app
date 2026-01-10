@@ -1,1 +1,73 @@
+# ======================
+# SYSTEM FILES
+# ======================
+.DS_Store
+Thumbs.db
+*.log
 
+# ======================
+# NODE / NEXT.JS
+# ======================
+node_modules/
+.next/
+out/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ======================
+# ENVIRONMENT VARIABLES
+# ======================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ======================
+# VERCEL
+# ======================
+.vercel/
+
+# ======================
+# FIREBASE
+# ======================
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# ======================
+# FLUTTER / DART
+# ======================
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# ======================
+# ANDROID
+# ======================
+android/.gradle/
+android/app/build/
+android/local.properties
+
+# ======================
+# IOS
+# ======================
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+ios/Flutter/Generated.xcconfig
+
+# ======================
+# IDE / EDITOR
+# ======================
+.vscode/
+.idea/
+*.iml
