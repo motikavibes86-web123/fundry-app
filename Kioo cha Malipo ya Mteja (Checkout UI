@@ -1,0 +1,16 @@
+// backend/functions/src/payments.ts
+export const anzishaMalipo = functions.https.onCall(async (data, context) => {
+    const { kiasi, nambaYaSimu, mtandao } = data;
+
+    // Hapa tunatengeneza "Order" kwenda Selcom
+    const selcomPayload = {
+        amount: kiasi,
+        msisdn: nambaYaSimu,
+        vendor: mtandao, // mfano: 'MPESA'
+        order_id: `FUNDY-${Date.now()}`
+    };
+
+    // Baada ya hapo Selcom itatuma "Push Prompt" (STK Push) kwa mteja
+    // Mteja ataingiza PIN yake kwenye simu
+    return { status: "PENDING", message: "Ingiza PIN kwenye simu yako" };
+});
