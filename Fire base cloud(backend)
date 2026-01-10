@@ -1,0 +1,6 @@
+
+export const releasePayment = functions.https.onCall((data, context) => {
+  if (!context.auth) throw new Error("Unauthorized");
+
+  // commission logic hapa
+});
