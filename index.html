@@ -1,13 +1,691 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS HACKER</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #000;
+            color: #00ff41;
+            overflow: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Matrix Background */
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* Password Gate */
+        #password-gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .gate-container {
+            background: #000;
+            padding: 30px;
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff41;
+            text-align: center;
+            width: 400px;
+        }
+
+        .terminal-header {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ff41;
+            letter-spacing: 2px;
+        }
+
+        .typewriter {
+            border-right: 2px solid #00ff41;
+            white-space: nowrap;
+            overflow: hidden;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #00ff41 }
+        }
+
+        #password-input {
+            background: #000;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 12px;
+            width: 100%;
+            font-size: 16px;
+            margin: 10px 0;
+            outline: none;
+        }
+
+        #password-input:focus {
+            box-shadow: 0 0 10px #00ff41;
+        }
+
+        #login-btn {
+            background: #000;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 12px 30px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        #login-btn:hover {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 15px #00ff41;
+        }
+
+        /* Main Chat Interface */
+        #nexus-interface {
+            display: none;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* CRT Effect */
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 2px;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Header */
+        .nexus-header {
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 2px solid #00ff41;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .nexus-title {
+            font-size: 24px;
+            text-shadow: 0 0 10px #00ff41;
+            letter-spacing: 3px;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            background: #111;
+            padding: 5px 15px;
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        /* Online Users Panel */
+        .users-panel {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.8);
+            border-right: 1px solid #00ff41;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .users-list {
+            margin-top: 20px;
+        }
+
+        .user-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #111;
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            background: #00ff41;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            background: rgba(0, 255, 65, 0.1);
+            padding: 10px 15px;
+            border-left: 3px solid #00ff41;
+            border-radius: 0 10px 10px 0;
+            max-width: 70%;
+            animation: messageAppear 0.3s ease-out;
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: rgba(0, 255, 65, 0.2);
+            border-left: none;
+            border-right: 3px solid #00ff41;
+            border-radius: 10px 0 0 10px;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .message-content {
+            word-wrap: break-word;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.6;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            padding: 10px;
+            font-style: italic;
+            opacity: 0.7;
+            display: none;
+        }
+
+        .typing-dots {
+            display: inline-block;
+        }
+
+        .typing-dots span {
+            animation: typing 1.4s infinite;
+            opacity: 0.6;
+            display: inline-block;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #00ff41;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        #message-input {
+            flex: 1;
+            background: #000;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 12px;
+            font-size: 14px;
+            outline: none;
+            border-radius: 4px;
+        }
+
+        #message-input:focus {
+            box-shadow: 0 0 10px #00ff41;
+        }
+
+        .chat-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-btn {
+            background: #000;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        .chat-btn:hover {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 10px #00ff41;
+        }
+
+        /* Tools Panel */
+        .tools-panel {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.8);
+            border-left: 1px solid #00ff41;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .tool-section {
+            margin-bottom: 25px;
+        }
+
+        .tool-title {
+            color: #00ff41;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tool-btn {
+            background: #000;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 8px 12px;
+            margin: 5px 0;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        .tool-btn:hover {
+            background: #00ff41;
+            color: #000;
+            transform: translateX(5px);
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #000;
+            border: 2px solid #00ff41;
+            padding: 30px;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 0 30px #00ff41;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #00ff41;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Voice/Video Chat */
+        #video-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .video-box {
+            background: #111;
+            border: 1px solid #00ff41;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 5px;
+            font-size: 12px;
+        }
+
+        /* Hacker Rank */
+        .rank-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #000, #00ff41);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px #00ff41;
+            }
+            to {
+                box-shadow: 0 0 15px #00ff41;
+            }
+        }
+
+        /* Network Scanner */
+        #network-scanner {
+            background: #000;
+            border: 1px solid #00ff41;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            height: 150px;
+            overflow-y: auto;
+            white-space: pre;
+        }
+
+        /* Terminal Console */
+        #terminal-output {
+            background: #000;
+            border: 1px solid #00ff41;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .terminal-line {
+            margin-bottom: 2px;
+        }
+
+        .terminal-line::before {
+            content: "> ";
+            color: #00ff41;
+        }
+
+        /* Emergency Button */
+        #panic-btn {
+            background: #000;
+            color: #ff0000;
+            border: 1px solid #ff0000;
+            padding: 10px;
+            margin-top: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        #panic-btn:hover {
+            background: #ff0000;
+            color: #000;
+            animation: panic 0.5s infinite;
+        }
+
+        @keyframes panic {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff41;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00cc33;
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background -->
+    <canvas id="matrix-bg"></canvas>
+    <div class="crt-overlay"></div>
+
+    <!-- Password Gate -->
+    <div id="password-gate">
+        <div class="gate-container">
+            <div class="terminal-header">
+                <div class="typewriter">NEXUS HACKER - ENCRYPTED ACCESS POINT</div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <div style="font-size: 14px; opacity: 0.8; margin-bottom: 10px;">
+                    > INITIALIZING SECURE CONNECTION...
+                </div>
+                <div style="font-size: 12px; opacity: 0.6;">
+                    [ENCRYPTION: AES-256 | PROTOCOL: SRP6a | ANONYMITY: TOR]
+                </div>
+            </div>
+            <input type="password" id="password-input" placeholder="ENTER ACCESS CODE" autocomplete="off">
+            <button id="login-btn">[ INITIATE CONNECTION ]</button>
+            <div style="margin-top: 20px; font-size: 11px; opacity: 0.5;">
+                WARNING: UNAUTHORIZED ACCESS WILL BE LOGGED & TRACED
+            </div>
+            <div style="margin-top: 10px; font-size: 10px; opacity: 0.3;">
+                PASSWORD: 2026
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Interface -->
+    <div id="nexus-interface">
+        <!-- Header -->
+        <div class="nexus-header">
+            <div class="nexus-title">NEXUS HACKER <span class="rank-badge">ROOKIE</span></div>
+            <div class="user-stats">
+                <div class="stat">ONLINE: <span id="online-count">0</span></div>
+                <div class="stat">ROOM: <span id="room-id">#7A3F9C</span></div>
+                <div class="stat">ENCRYPTION: <span style="color: #00ff41;">ACTIVE</span></div>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <!-- Online Users -->
+            <div class="users-panel">
+                <h3 style="color: #00ff41; border-bottom: 1px solid #00ff41; padding-bottom: 10px;">
+                    ACTIVE NODES
+                </h3>
+                <div class="users-list" id="users-list">
+                    <!-- Users will be added here -->
+                </div>
+                
+                <div class="tool-section">
+                    <div class="tool-title">SESSION TOOLS</div>
+                    <button class="tool-btn" onclick="generateNewID()">[ REGENERATE ID ]</button>
+                    <button class="tool-btn" onclick="toggleIncognito()">[ INCOGNITO MODE ]</button>
+                    <button class="tool-btn" onclick="showNotes()">[ ENCRYPTED NOTES ]</button>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <!-- Messages -->
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message">
+                        <div class="message-header">
+                            <span style="color: #00ff41;">SYSTEM</span>
+                            <span>WELCOME TO NEXUS</span>
+                        </div>
+                        <div class="message-content">
+                            Secure connection established. All communications are end-to-end encrypted.
+                            Your anonymous ID: <span id="user-id" style="color: #00ff41;"></span>
+                        </div>
+                        <div class="message-time">[SYSTEM]</div>
+                    </div>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator" id="typing-indicator">
+                    <span class="typing-dots">
+                        <span>●</span><span>●</span><span>●</span>
+                    </span>
+                </div>
+
+                <!-- Input Area -->
+                <div class="chat-input-container">
+                    <div class="input-row">
+                        <input type="text" id="message-input" placeholder="Type encrypted message... (Press Enter to send)" autocomplete="off">
+                        <div class="chat-buttons">
+                            <button class="chat-btn" onclick="sendMessage()">[ SEND ]</button>
+                            <button class="chat-btn" onclick="showVoiceChat()">[ VOICE ]</button>
+                            <button class="chat-btn" onclick="showVideoChat()">[ VIDEO ]</button>
+                            <button class="chat-btn" onclick="showTools()">[ TOOLS ]</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tools Panel -->
+            <div class="tools-panel">
+                <div class="tool-section">
+                    <div class="tool-title">HACKER TOOLS</div>
+                    <button class="tool-btn" onclick="runNetworkScan()">[ NETWORK SCAN ]</button>
+                    <button class="tool-btn" onclick="showTerminal()">[ TERMINAL ]</button>
+                    <button class="tool-btn" onclick="encryptFile()">[ ENCRYPT FILE ]</button>
+                    <button class="tool-btn" onclick="runCodeGame()">[ CODE BREAKER ]</button>
+                </div>
+
+                <div class="tool-section">
+                    <div class="tool-title">PRIVACY</div>
+                    <button class="tool-btn" onclick="setMessageTimer()">[ SELF-DESTRUCT ]</button>
+                    <button class="tool-btn" onclick="clearHistory()">[ WIPE HISTORY ]</button>
+                    <button class="tool-btn" onclick="exportKeys()">[ EXPORT KEYS ]</button>
+                </div>
+
+                <div class="tool-section">
+                    <div class="tool-title">SETTINGS</div>
+                    <button class="tool-btn" onclick="toggleSound()">[ TOGGLE SOUND ]</button>
+                    <button class="tool-btn" onclick="changeTheme()">[ MATRIX EFFECTS ]</button>
+                    <button class="tool-btn" onclick="showHelp()">[ HELP ]</button>
+                </div>
+
+                <div id="panic-btn" onclick="panicMode()">
+                    [ EMERGENCY WIPE ]
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="voice-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>[ VOICE CHAT - ENCRYPTED ]</h2>
+                <button class="close-btn" onclick="closeVoiceChat()">×</button>
+            </div>
+            <div id="voice-container">
+                <div class="video-box">
+                    <div style="color: #00ff41;">VOICE ACTIVE</div>
+                    <div class="vid
