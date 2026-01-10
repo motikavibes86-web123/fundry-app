@@ -689,3 +689,150 @@
                 <div class="video-box">
                     <div style="color: #00ff41;">VOICE ACTIVE</div>
                     <div class="vid
+eo-box">
+                    <div style="color: #00ff41;">VOICE ACTIVE</div>
+                    <div class="video-label" id="active-caller">Searching Node...</div>
+                </div>
+            </div>
+            <button class="chat-btn" style="width: 100%; margin-top: 10px;" onclick="closeVoiceChat()">[ TERMINATE CONNECTION ]</button>
+        </div>
+    </div>
+
+    <audio id="siren-alarm" src="https://www.soundjay.com/misc/sounds/police-siren-1.mp3" preload="auto" loop></audio>
+
+    <script>
+        // 1. Matrix Background Logic
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const alphabet = "010101ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#00ff41";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 35);
+
+        // 2. Access Control na King'ora
+        let attempts = 0;
+        let userData = { name: "", code: "" };
+
+        const loginBtn = document.getElementById('login-btn');
+        const passInput = document.getElementById('password-input');
+        const gate = document.getElementById('password-gate');
+        const regScreen = document.getElementById('reg-screen');
+        const nexus = document.getElementById('nexus-interface');
+        const siren = document.getElementById('siren-alarm');
+
+        loginBtn.addEventListener('click', () => {
+            if (passInput.value === "2026") {
+                siren.pause(); // Hakikisha alarm inazima ikipatwa
+                gate.style.display = 'none';
+                regScreen.style.display = 'flex';
+            } else {
+                attempts++;
+                
+                // Badilisha rangi kuwa nyekundu na tikisa box
+                passInput.style.border = "2px solid red";
+                passInput.style.color = "red";
+                passInput.style.boxShadow = "0 0 20px red";
+                
+                if (attempts >= 3) {
+                    siren.play(); // Piga king'ora cha polisi
+                    alert("SECURITY BREACH!!! UNAUTHORIZED ACCESS DETECTED.");
+                    
+                    // Funga uwezo wa kuandika kwa sekunde 10 kama adhabu
+                    passInput.disabled = true;
+                    setTimeout(() => {
+                        passInput.disabled = false;
+                        attempts = 0;
+                        siren.pause();
+                        passInput.style.border = "1px solid #00ff41";
+                        passInput.style.color = "#00ff41";
+                    }, 10000);
+                }
+            }
+        });
+
+        // 3. Registration Logic
+        document.getElementById('final-join-btn').addEventListener('click', () => {
+            const name = document.getElementById('reg-name').value;
+            const code = document.getElementById('reg-code').value;
+
+            if (name && code) {
+                userData.name = name.toUpperCase();
+                userData.code = code;
+                regScreen.style.display = 'none';
+                nexus.style.display = 'block';
+                
+                document.getElementById('user-id').innerText = userData.name + "_" + userData.code;
+                document.getElementById('room-id').innerText = "#HACKER_LOUNGE";
+                
+                startSystem();
+            } else {
+                alert("Weka Jina na Chagua Code yako!");
+            }
+        });
+
+        // 4. Chat & System Stats
+        function startSystem() {
+            sendSystemMessage("CONNECTION ENCRYPTED...");
+            
+            // Battery Level
+            if (navigator.getBattery) {
+                navigator.getBattery().then(b => {
+                    sendSystemMessage("BATTERY STATUS: " + Math.floor(b.level * 100) + "%");
+                });
+            }
+            // Location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(p => {
+                    sendSystemMessage("GPS LOCKED: " + p.coords.latitude.toFixed(2) + ", " + p.coords.longitude.toFixed(2));
+                });
+            }
+        }
+
+        const chatMessages = document.getElementById('chat-messages');
+        const messageInput = document.getElementById('message-input');
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message sent';
+                msgDiv.innerHTML = `
+                    <div class="message-header"><span>${userData.name}_${userData.code}</span></div>
+                    <div class="message-content">${text}</div>
+                `;
+                chatMessages.appendChild(msgDiv);
+                messageInput.value = "";
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        function sendSystemMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.innerHTML = `<div style="color:yellow; font-size:10px;">[SYSTEM]</div><div>${text}</div>`;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showVoiceChat() { document.getElementById('voice-modal').style.display = 'flex'; }
+        function closeVoiceChat() { document.getElementById('voice-modal').style.display = 'none'; }
+    </script>
+</body>
+</html>
