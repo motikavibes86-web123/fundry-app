@@ -836,3 +836,150 @@ eo-box">
     </script>
 </body>
 </html>
+eo-box">
+                    <div style="color: #00ff41;">VOICE ACTIVE</div>
+                    <div class="video-label" id="active-caller">Searching Node...</div>
+                </div>
+            </div>
+            <button class="chat-btn" style="width: 100%; margin-top: 10px;" onclick="closeVoiceChat()">[ TERMINATE CONNECTION ]</button>
+        </div>
+    </div>
+
+    <audio id="siren-alarm" src="https://www.soundjay.com/misc/sounds/police-siren-1.mp3" preload="auto" loop></audio>
+    <audio id="msg-pop" src="https://www.soundjay.com/buttons/sounds/button-20.mp3" preload="auto"></audio>
+
+    <script type="module">
+        // 1. FIREBASE SETUP (Ili iwe Live)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // WEKA CONFIG YAKO HAPA KUTOKA FIREBASE CONSOLE
+        const firebaseConfig = {
+            apiKey: "AIzaSy...", 
+            databaseURL: "https://YAKO-DEFAULT-RTDB.firebaseio.com",
+            projectId: "nexus-hacker",
+            appId: "1:12345:web:abcde"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const chatRef = ref(db, "hacker_group_messages");
+
+        // 2. MATRIX ANIMATION
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const alphabet = "010101ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = localStorage.getItem('matrixColor') || "#00ff41";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 35);
+
+        // 3. REGISTRATION & LOGIN LOGIC
+        let attempts = 0;
+        let userData = { name: "", code: "" };
+        const siren = document.getElementById('siren-alarm');
+        const msgPop = document.getElementById('msg-pop');
+
+        window.initiateLogin = function() {
+            const pass = document.getElementById('password-input').value;
+            if (pass === "2026") {
+                siren.pause();
+                document.getElementById('password-gate').style.display = 'none';
+                document.getElementById('reg-screen').style.display = 'flex';
+            } else {
+                attempts++;
+                document.getElementById('password-input').style.border = "2px solid red";
+                if (attempts >= 3) { siren.play(); alert("ALARM! Unauthorized access!"); }
+            }
+        }
+
+        window.activateProfile = function() {
+            const name = document.getElementById('reg-name').value;
+            const code = document.getElementById('reg-code').value;
+            if (name && code) {
+                userData.name = name.toUpperCase();
+                userData.code = code;
+                document.getElementById('reg-screen').style.display = 'none';
+                document.getElementById('nexus-interface').style.display = 'block';
+                document.getElementById('user-id').innerText = userData.name + "_" + userData.code;
+                startHackerStats();
+            }
+        }
+
+        // 4. LIVE CHAT WITH NOTIFICATIONS
+        window.sendMessage = function() {
+            const text = document.getElementById('message-input').value.trim();
+            if (text) {
+                push(chatRef, {
+                    sender: userData.name,
+                    code: userData.code,
+                    message: text,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                document.getElementById('message-input').value = "";
+            }
+        }
+
+        onChildAdded(chatRef, (data) => {
+            const msg = data.val();
+            const isMe = msg.sender === userData.name;
+            if (!isMe) msgPop.play(); // Notification sound
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = isMe ? 'message sent' : 'message';
+            msgDiv.innerHTML = `
+                <div class="message-header"><span>${msg.sender}_${msg.code}</span></div>
+                <div class="message-content">${msg.message}</div>
+                <div class="message-time">${msg.time}</div>
+            `;
+            document.getElementById('chat-messages').appendChild(msgDiv);
+            document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+        });
+
+        // 5. SETTINGS & TOOLS
+        window.changeTheme = function() {
+            const colors = ["#00ff41", "#ff0000", "#00bcff", "#ffff00"];
+            let current = colors.indexOf(localStorage.getItem('matrixColor') || "#00ff41");
+            let next = colors[(current + 1) % colors.length];
+            localStorage.setItem('matrixColor', next);
+            sendSystemMessage("THEME UPDATED TO: " + next);
+        }
+
+        window.runNetworkScan = function() {
+            sendSystemMessage("SCANNING LOCAL SUBNET...");
+            setTimeout(() => sendSystemMessage("FOUND: 192.168.1.1 (Gateway)"), 1000);
+            setTimeout(() => sendSystemMessage("FOUND: 192.168.1.105 (Android-Node)"), 2000);
+        }
+
+        function startHackerStats() {
+            if (navigator.getBattery) navigator.getBattery().then(b => sendSystemMessage("BATTERY: " + Math.floor(b.level * 100) + "%"));
+            if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => sendSystemMessage("LOC LOCKED: " + p.coords.latitude.toFixed(2)));
+        }
+
+        function sendSystemMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.innerHTML = `<div style="color:yellow; font-size:10px;">[SYSTEM]</div><div>${text}</div>`;
+            document.getElementById('chat-messages').appendChild(div);
+        }
+
+        // Bind buttons
+        document.getElementById('login-btn').onclick = initiateLogin;
+        document.getElementById('final-join-btn').onclick = activateProfile;
+    </script>
+</body>
+</html>
