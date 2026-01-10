@@ -1,0 +1,20 @@
+// mobile-app/lib/features/discovery/map_service.dart
+import 'package:geoflutterfire2/geoflutterfire2.dart';
+
+final geo = GeoFlutterFire();
+
+void tafutaMafundi(double lat, double lng) {
+  GeoFirePoint center = geo.point(latitude: lat, longitude: lng);
+  var collectionReference = FirebaseFirestore.instance.collection('fundis');
+  
+  double radius = 10; // Kilomita 10
+  String field = 'location';
+
+  Stream<List<DocumentSnapshot>> stream = geo.collection(collectionRef: collectionReference)
+      .within(center: center, radius: radius, field: field);
+
+  stream.listen((List<DocumentSnapshot> fundis) {
+    // Hapa unapata list ya mafundi wote waliokaribu na mteja
+    print("Tumepata mafundi ${fundis.length} karibu nawe");
+  });
+}
