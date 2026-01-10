@@ -1,0 +1,33 @@
+# 🛠️ Fundy Project - Production Guide
+
+## 1. Backend (Firebase)
+* **Ingia Firebase Console:** Create Project `fundy-tz`.
+* **Washa:** Auth (Phone), Firestore, Cloud Functions, Storage.
+* **Deploy:**
+    ```bash
+    cd backend
+    npm install
+    firebase deploy --only functions,firestore:rules
+    ```
+
+## 2. Mobile App (Flutter)
+* **Configuration:** ```bash
+    flutterfire configure
+    ```
+* **Build (Android):** ```bash
+    flutter build apk --release --obfuscate --split-debug-info=symbols/
+    ```
+
+## 3. Admin Dashboard (Vercel)
+* Push code yako GitHub.
+* Unganisha GitHub na **Vercel**.
+* Weka Environment Variables:
+    * `NEXT_PUBLIC_FIREBASE_API_KEY`
+    * `FIREBASE_SERVICE_ACCOUNT_KEY`
+
+## 4. Payment Setup (Flutterwave/Selcom)
+* Sajili akaunti ya biashara Selcom.
+* Weka `SECRET_KEY` yako kwenye Firebase Functions Config:
+    ```bash
+    firebase functions:config:set payment.key="SK_YOUR_KEY"
+    ```
