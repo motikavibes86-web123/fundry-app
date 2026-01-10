@@ -1,0 +1,8 @@
+fundy-app/
+├── .gitignore
+├── .env.example
+├── mobile-app/
+├── backend/
+│   ├── functions/
+│   └── firestore.rules
+├── admin-dashboard/
