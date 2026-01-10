@@ -1,0 +1,27 @@
+// backend/functions/src/payments.ts
+import * as functions from 'firebase-functions';
+import axios from 'axios';
+
+export const lipiaHuduma = functions.https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Ingia kwanza');
+
+    const { amount, phoneNumber, provider } = data; // provider: 'MPESA', 'TIGOPESA'
+
+    try {
+        // Hapa tunatuma ombi la STK Push kwenda Flutterwave au Selcom
+        const response = await axios.post('https://api.flutterwave.com/v3/charges?type=mobile_money_tanzania', {
+            "amount": amount,
+            "currency": "TZS",
+            "email": context.auth.token.email || "customer@fundy.com",
+            "phone_number": phoneNumber,
+            "tx_ref": `FUNDY-TX-${Date.now()}`,
+            "network": provider,
+        }, {
+            headers: { Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}` }
+        });
+
+        return { success: true, data: response.data };
+    } catch (error) {
+        throw new functions.https.HttpsError('internal', 'Malipo yameshindwa kuanza');
+    }
+});
