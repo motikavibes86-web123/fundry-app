@@ -1,4 +1,6 @@
-mobile-app/
+cd mobile-app
+flutter pub get
+flutter runmobile-app/
 ├── assets/
 │   ├── images/
 │   │   └── logo.png
