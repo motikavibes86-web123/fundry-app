@@ -1,0 +1,31 @@
+<?php
+include "db.php";
+include "csrf.php";
+
+if($_SERVER["REQUEST_METHOD"]==="POST"){
+  csrf_check();
+
+  $name = trim($_POST["fullname"]);
+  $email = trim($_POST["email"]);
+  $pass = $_POST["password"];
+  $cpass = $_POST["confirm"];
+
+  if(strlen($pass)<6 || $pass!==$cpass){ die("Password error"); }
+
+  $hash = password_hash($pass, PASSWORD_DEFAULT);
+  $token = bin2hex(random_bytes(32));
+
+  $stmt = $conn->prepare(
+    "INSERT INTO users(fullname,email,password,verify_token) VALUES(?,?,?,?)"
+  );
+  $stmt->bind_param("ssss",$name,$email,$hash,$token);
+
+  if($stmt->execute()){
+    // TUMA EMAIL (mfano wa basic mail)
+    $link = "https://yourdomain.com/verify.php?token=".$token;
+    mail($email,"Verify Motika Vibes","Bonyeza kuthibitisha: ".$link);
+    echo "Angalia email kuthibitisha akaunti";
+  } else {
+    echo "Email tayari ipo";
+  }
+}
