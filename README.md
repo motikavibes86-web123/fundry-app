@@ -42,3 +42,4 @@
 ---
 
 ## 📂 Project Structure
+motika-vibes/ │ ├── admin-dashboard/        # Next.js Admin Panel │ ├── backend/ │   ├── index.php │   ├── buy.php │   ├── login.php │   ├── register.php │   ├── download.php │   ├── db.php │   ├── covers/ │   ├── private_books/ │   └── sql/ │       └── database.sql │ └── README.md
