@@ -127,4 +127,104 @@ async function payBook(bookId){
 </script>
 
 </body>
-    </html>           
+    </html>   <div class="container">
+  <div class="book-list" id="bookList">
+    <!-- Vitabu vitatokea hapa -->
+  </div>
+  <div id="message"></div>
+</div>
+
+<script>
+// ====== Configuration ======
+const API_TOKEN = "YOUR_API_TOKEN"; // Badilisha na token yako
+const USER_ID = 25; // Badilisha na user_id yako
+const VENDOR = "TILL61103867";
+const REDIRECT_URL = "https://yourdomain.com/success";
+const CANCEL_URL = "https://yourdomain.com/cancel";
+const WEBHOOK_URL = "https://yourdomain.com/webhook";
+
+// ====== Generate 250 books ======
+const books = [];
+for(let i=1;i<=250;i++){
+  books.push({id:i, title:`Book ${i}`, price:Math.floor(Math.random()*900)+100});
+}
+
+// ====== Display books ======
+const bookList = document.getElementById("bookList");
+books.forEach(book => {
+  const div = document.createElement("div");
+  div.className = "book";
+  div.innerHTML = `
+    <h3>${book.title}</h3>
+    <p>Price: TZS ${book.price}</p>
+    <button onclick="payBook(${book.id})">Lipa</button>
+  `;
+  bookList.appendChild(div);
+});
+
+// ====== Show messages ======
+function showMessage(msg,type="success"){
+  const messageDiv = document.getElementById("message");
+  messageDiv.className = `message ${type}`;
+  messageDiv.innerText = msg;
+}
+
+// ====== Pay via PalmPesa API ======
+async function payBook(bookId){
+  const book = books.find(b=>b.id===bookId);
+  if(!book) return;
+
+  const orderId = "ORDER-" + Date.now();
+  const buyerName = prompt("Ingiza jina lako:");
+  const buyerPhone = prompt("Ingiza namba yako (e.g., 255744000000):");
+  const buyerEmail = prompt("Ingiza email yako:");
+
+  if(!buyerName || !buyerPhone || !buyerEmail){
+    showMessage("Tafadhali jaza taarifa zote!", "error");
+    return;
+  }
+
+  const payload = {
+    user_id: USER_ID,
+    vendor: VENDOR,
+    order_id: orderId,
+    buyer_email: buyerEmail,
+    buyer_name: buyerName,
+    buyer_phone: buyerPhone,
+    amount: book.price,
+    currency: "TZS",
+    redirect_url: REDIRECT_URL,
+    cancel_url: CANCEL_URL,
+    webhook: WEBHOOK_URL,
+    buyer_remarks: "Online Book Purchase",
+    merchant_remarks: book.title,
+    no_of_items:1
+  };
+
+  try{
+    const res = await fetch("https://palmpesa.drmlelwa.co.tz/api/process-payment",{
+      method:"POST",
+      headers:{
+        "Authorization":"Bearer "+API_TOKEN,
+        "Content-Type":"application/json",
+        "Accept":"application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.raw && data.raw.payment_gateway_url){
+      window.open(data.raw.payment_gateway_url,"_blank");
+      showMessage(`Payment link ya "${book.title}" imetengenezwa, dirisha jipya limefunguliwa.`);
+    }else{
+      showMessage("Tatizo limetokea, jaribu tena.", "error");
+      console.log(data);
+    }
+  }catch(err){
+    showMessage("Network error. Jaribu tena.", "error");
+    console.error(err);
+  }
+}
+</script>
+
+</body>
+</html>        
