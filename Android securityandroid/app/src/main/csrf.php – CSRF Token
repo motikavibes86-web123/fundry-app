@@ -1,0 +1,12 @@
+<?php
+if (empty($_SESSION['csrf'])) {
+  $_SESSION['csrf'] = bin2hex(random_bytes(32));
+}
+function csrf_input(){
+  echo '<input type="hidden" name="csrf" value="'.$_SESSION['csrf'].'">';
+}
+function csrf_check(){
+  if(!isset($_POST['csrf']) || $_POST['csrf'] !== $_SESSION['csrf']){
+    die("CSRF blocked");
+  }
+}
