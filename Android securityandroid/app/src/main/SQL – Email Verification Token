@@ -1,0 +1,3 @@
+ALTER TABLE users
+ADD verify_token VARCHAR(64),
+ADD verified_at TIMESTAMP NULL;
