@@ -1,0 +1,33 @@
+<?php
+include "db.php";
+include "config.php";
+require_once 'vendor/autoload.php';
+
+use Twilio\Rest\Client;
+
+if($_SERVER["REQUEST_METHOD"]=="POST"){
+    $user_id = $_POST['user_id'];
+    $otp     = $_POST['otp'];
+
+    $stmt = $conn->prepare("SELECT otp, otp_expire, phone, fullname FROM users WHERE id=?");
+    $stmt->bind_param("i",$user_id);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+
+    if(!$user){ die("User haipo"); }
+    if($user['otp'] !== $otp){ die("OTP si sahihi"); }
+    if(strtotime($user['otp_expire']) < time()){ die("OTP imeisha"); }
+
+    // Clear OTP
+    $upd = $conn->prepare("UPDATE users SET otp=NULL, otp_expire=NULL WHERE id=?");
+    $upd->bind_param("i",$user_id);
+    $upd->execute();
+
+    // Send Welcome SMS
+    $client = new Client(TWILIO_SID, TWILIO_TOKEN);
+    $welcome = "Karibu Motika Vibes, ".$user['fullname']."! Furahia vitabu na huduma zetu.";
+    $client->messages->create($user['phone'], ['from'=>TWILIO_FROM, 'body'=>$welcome]);
+
+    echo "Akaunti imethibitishwa. SMS ya Karibu imetumwa.";
+}
+?>
