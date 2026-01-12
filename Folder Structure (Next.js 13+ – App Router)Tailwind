@@ -1,0 +1,26 @@
+admin-dashboard/
+│
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx              # Dashboard home
+│   │
+│   ├── books/
+│   │   └── page.tsx          # Manage books
+│   │
+│   ├── users/
+│   │   └── page.tsx          # Users list
+│   │
+│   ├── sales/
+│   │   └── page.tsx          # Mauzo
+│
+├── components/
+│   ├── Sidebar.tsx
+│   ├── Card.tsx
+│
+├── styles/
+│   └── globals.css
+│
+├── tailwind.config.js
+├── postcss.config.js
+├── package.json
+└── README.md
