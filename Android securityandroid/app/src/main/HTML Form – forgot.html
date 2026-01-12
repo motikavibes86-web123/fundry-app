@@ -1,0 +1,6 @@
+<form method="POST" action="forgot.php">
+  <?php include 'csrf.php'; csrf_input(); ?>
+  <input type="email" name="email" placeholder="Andika email yako" required>
+  <button>Send Reset Link</button>
+</form>
+<?php if(!empty($msg)) echo "<p>$msg</p>"; ?>
