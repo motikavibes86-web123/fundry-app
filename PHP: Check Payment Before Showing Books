@@ -1,0 +1,52 @@
+<?php
+session_start();
+
+// Simulate logged in user
+$user_email = "saleh@example.com";
+
+// Database connection
+$conn = new mysqli("localhost","root","","motika_db");
+
+$order_check = $conn->query("SELECT * FROM orders WHERE email='$user_email' ORDER BY created_at DESC LIMIT 1");
+$order = $order_check->fetch_assoc();
+
+$can_access_books = false;
+
+if($order && $order['status'] == 'paid'){
+    $can_access_books = true;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Motika Vibes - Vitabu</title>
+</head>
+<body>
+
+<?php if($can_access_books): ?>
+<h2>Vitabu Vilivyolipiwa</h2>
+<div class="books">
+<?php 
+// Show 30 sample books
+for($i=1; $i<=30; $i++){
+    echo "<div style='border:1px solid #ccc;padding:10px;margin:5px;width:200px;display:inline-block;'>
+    <img src='books/book$i.jpg' width='180'><br>
+    <b>Kitabu $i</b><br>
+    Bei: 500 TZS
+    </div>";
+}
+?>
+</div>
+
+<?php else: ?>
+<h2>Vitabu Vilivyo Locked</h2>
+<p>Vitabu hivi vinafungwa. Tafadhali lipa kwanza ili kupata access.</p>
+<a href="https://palmpesa.drmlelwa.co.tz/contribute/YN3DXS30LD" target="_blank">
+<button style="padding:10px 20px;background:green;color:white;border:none;border-radius:5px;">Lipa Sasa 500 TZS</button>
+</a>
+<?php endif; ?>
+
+</body>
+</html>
