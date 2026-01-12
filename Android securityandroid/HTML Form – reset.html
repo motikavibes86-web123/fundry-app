@@ -1,0 +1,8 @@
+<form method="POST" action="reset.php">
+  <?php include 'csrf.php'; csrf_input(); ?>
+  <input type="hidden" name="token" value="<?php echo htmlspecialchars($_GET['token'] ?? ''); ?>">
+  <input type="password" name="password" placeholder="Password Mpya" required>
+  <input type="password" name="confirm" placeholder="Rudia Password" required>
+  <button>Reset Password</button>
+</form>
+<?php if(!empty($msg)) echo "<p>$msg</p>"; ?>
