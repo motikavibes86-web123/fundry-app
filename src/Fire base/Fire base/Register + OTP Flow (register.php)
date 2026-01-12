@@ -1,0 +1,42 @@
+<?php
+include "db.php";
+include "config.php";
+require_once 'vendor/autoload.php';
+
+use Twilio\Rest\Client;
+
+$msg = "";
+
+if($_SERVER["REQUEST_METHOD"]=="POST"){
+    $fullname = trim($_POST['fullname']);
+    $email    = trim($_POST['email']);
+    $phone    = trim($_POST['phone']);
+    $pass     = $_POST['password'];
+    $cpass    = $_POST['confirm'];
+
+    if($pass !== $cpass){ die("Passwords hazifanani"); }
+    if(strlen($pass)<6){ die("Password angalau 6 characters"); }
+
+    $hash = password_hash($pass, PASSWORD_DEFAULT);
+
+    $otp = rand(100000,999999);
+    $otp_expire = date("Y-m-d H:i:s", strtotime("+5 minutes"));
+
+    // Insert user + OTP
+    $stmt = $conn->prepare("INSERT INTO users(fullname,email,password,phone,otp,otp_expire) VALUES(?,?,?,?,?,?)");
+    $stmt->bind_param("ssssss",$fullname,$email,$hash,$phone,$otp,$otp_expire);
+    if($stmt->execute()){
+        $user_id = $stmt->insert_id;
+
+        // Send OTP SMS
+        $client = new Client(TWILIO_SID, TWILIO_TOKEN);
+        $message = "Motika Vibes OTP yako: $otp. Imetumika kwa dakika 5.";
+        $client->messages->create($phone, ['from'=>TWILIO_FROM, 'body'=>$message]);
+
+        $_SESSION['user_id'] = $user_id;
+        echo "Angalia SMS yako kuingia OTP.";
+    } else {
+        echo "Email au namba tayari imesajiliwa.";
+    }
+}
+?>
